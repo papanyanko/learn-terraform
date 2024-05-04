@@ -3,7 +3,7 @@ resource "aws_launch_configuration" "example" {
   instance_type = var.instance_type
   security_groups = [ aws_security_group.instance.id ]
 
-  user_data = templatefile("/work/modules/services/webserver-cluster/user-data.sh", {
+  user_data = templatefile("${path.module}/user-data.sh", {
     server_port = var.server_port
     db_address = data.terraform_remote_state.db.outputs.address
     db_port = data.terraform_remote_state.db.outputs.port
@@ -88,52 +88,49 @@ resource "aws_lb_target_group" "asg" {
 
 resource "aws_security_group" "instance" {
   name = "${var.cluster_name}-instance"
+}
 
-  ingress = [
-    {
-      description = "example ingress"
-      from_port = var.server_port
-      to_port = var.server_port
-      protocol = local.tcp_protocol
-      cidr_blocks = local.all_ips
-      ipv6_cidr_blocks = [  ]
-      prefix_list_ids = [  ]
-      security_groups = [  ]
-      self = false
-    }
-  ]
+resource "aws_security_group_rule" "allow_http_inbound_instance" {
+  type = "ingress"
+  description = "example ingress"
+  security_group_id = aws_security_group.instance.id
+
+  from_port = var.server_port
+  to_port = var.server_port
+  protocol = local.tcp_protocol
+  cidr_blocks = local.all_ips
+  ipv6_cidr_blocks = [  ]
+  prefix_list_ids = [  ]
 }
 
 resource "aws_security_group" "alb" {
   name = "${var.cluster_name}-alb"
+}
 
-  ingress = [
-    {
-      description = "alb ingress"
-      from_port = local.http_port
-      to_port = local.http_port
-      protocol = local.tcp_protocol
-      cidr_blocks = local.all_ips
-      ipv6_cidr_blocks = [  ]
-      prefix_list_ids = [  ]
-      security_groups = [  ]
-      self = false
-    }
-  ]
+resource "aws_security_group_rule" "allow_http_inbound_alb" {
+  type = "ingress"
+  description = "alb ingress"
+  security_group_id = aws_security_group.alb.id
 
-  egress = [ 
-    {
-      description = "alb egress"
-      from_port = local.any_port
-      to_port = local.any_port
-      protocol = local.any_protocol
-      cidr_blocks = local.all_ips
-      ipv6_cidr_blocks = [  ]
-      prefix_list_ids = [  ]
-      security_groups = [  ]
-      self = false
-    }
-   ]
+  from_port = local.http_port
+  to_port = local.http_port
+  protocol = local.tcp_protocol
+  cidr_blocks = local.all_ips
+  ipv6_cidr_blocks = [  ]
+  prefix_list_ids = [  ]
+}
+
+resource "aws_security_group_rule" "allow_all_outbound_alb" {
+  type = "egress"
+  description = "alb egress"
+  security_group_id = aws_security_group.alb.id
+
+  from_port = local.any_port
+  to_port = local.any_port
+  protocol = local.any_protocol
+  cidr_blocks = local.all_ips
+  ipv6_cidr_blocks = [  ]
+  prefix_list_ids = [  ]
 }
 
 locals {
