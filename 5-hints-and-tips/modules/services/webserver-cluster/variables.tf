@@ -1,3 +1,9 @@
+variable "ami" {
+  description = "The AMI to use in the cluster"
+  type = string
+  default = "ami-0fb653ca2d3203ac1"
+}
+
 variable "server_port" {
   description = "The port the server will use or HTTP requests"
   type = number
@@ -35,4 +41,9 @@ variable "max_size" {
   description = "The maximum number of EC2 Instances in the ASG"
   default = 10
   type = number
+}
+
+variable "server_text" {
+  type =  string
+  default = "Hello, World"
 }

@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 module "data_storage" {
-  source = "../../../modules/data-storage/mysql"
+  source = "../../../../modules/data-storage/mysql"
 
   db_name = "dbstage"
   instance_class = "db.t3.micro"
