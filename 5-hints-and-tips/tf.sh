@@ -10,5 +10,5 @@ docker container run -it --rm \
   -w /work/$WORK_DIR \
   --env-file ~/.config/aws/.env \
   --entrypoint "/bin/sh" \
-  hashicorp/terraform:1.8.2 \
+  hashicorp/terraform:1.8.5 \
   -c "terraform $command"
